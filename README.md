@@ -31,8 +31,8 @@ We present the guidelines as a checklist in this README. This means that your te
 - [x] Locate appropriate data sources for your project.
   - [x] Your main data source may __not__ be one that we used in class nor be found in any R package.
   - [ ] Supplementary data sources may come from anywhere.
-- [ ] Read in your data and perform any necessary data wrangling and cleaning.
-- [ ] Conduct Exploratory Data Analysis.
+- [x] Read in your data and perform any necessary data wrangling and cleaning.
+- [x] Conduct Exploratory Data Analysis.
 - [ ] Prepare a reproducible report.
   - [ ] Use a QMD file; the output type is PDF.
   - [ ] The report should be well organized with section headings
