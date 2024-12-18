@@ -1,0 +1,130 @@
+---
+title: "Exploring Spotify Song Danceability vs. Popularity "
+author: "Ashish Sakhuja, Jubei Tapia, Yash Botre"
+toc: true
+number-sections: true
+highlight-style: pygments
+format:
+  pdf:
+    pdf-engine: pdflatex 
+    documentclass: article
+    fig-width: 7
+    fig-height: 7
+---
+
+{{< pagebreak >}}
+
+## Introduction {#sec-intro}
+
+Music is a source of entertainment for a slew of different people worldwide. Regardless of age, gender, or demographic background, music appeals to all in some way shape or form. Spotify is the most popular music streaming platform in the world. It contains a library of over one hundred million tracks and provides users with on demand listening on mobile devices wherever they please (Tech Radar, 2024). With the variety of tracks available to listeners, Spotify creates a top 200 songs list which is updated regularly. This playlist contains various songs from different genres, artists, and styles which are trending worldwide.  
+
+In the present report, I’ll analyze what song characteristics truly make songs popular and report on the research question: Does song danceability make a song more popular? I'll start by addressing some background information regarding Spotify and song popularity, then I’ll deep dive into the analysis of these song characteristics and their correlation to current popularity.  
+
+```{r}
+#| label: load-pkgs
+#| message: false
+#| code-summary: "Packages"
+
+library(openintro)  # for data
+library(tidyverse)  # for data wrangling and visualization
+library(knitr)      # for tables
+library(broom)      # for model summary
+```
+
+## Background Information {#sec-eda}
+
+Spotify was founded by Daniel Ek and Martin Lorentzon in Stockholm, Sweden in 2006 (Medium, 2024). Ek and Lorentzon sought to create a legal platform as an alternative to music piracy (Medium, 2024). At the time, piracy was the only way users could download, share, and listen to their favorite songs. These illegal file sharing platforms such as Napster and Kazaa disrupted the music industry. As such, the authors of Spotify built something that could provide similar services to users with even more benefits for those willing to pay for additional subscription tiers. On the other hand, they also wanted users to explore their platform without spending any additional money, which led them to also include a free tier. After two years of negotiations, Spotify received major record labels to license their catalogs by explaining just how beneficial their platform would be against piracy (Medium 2024). The streaming service was then officially launched in October 2008 in select European countries including Sweden, Norway, Finland, and Spain (Medium 2024). Since their launch, the reception was positive, and Spotify attracted users from across Europe. Eventually, Spotify made a deal with major American record labels in 2011 (Medium 2024). The company was then backed by \$100 million in funding for a US launch. After its US debut, Spotify skyrocketed into the streaming platform it is today. Its advancements and funding allowed for additional features such as Spotify Wrapped, song receipts, Spotify-made playlists, and song statistics. These statistics are what we will be using in determining what truly makes popular music.  
+
+**PRIOR INVESTIGATIONS OF SONG DANCEABILITY VS. POPULARITY** 
+
+Many aspiring musical artists and statisticians have asked similar questions on song characteristics vs. their popularity. Aspiring artists would try to imitate the beat, pitch, or rhythm of current popular music to create their own. However, that hasn’t always worked out. These people asked questions about the human psyche and what specific tempos or sounds create the most appealing music to users. A slew of people around the world have answered these questions with different perspectives and given statistical evidence on various characteristics and their correlations with popular music. One such student, Francesco Vitolo (Erasmus Universiteit Rotterdam), wrote his Master thesis on this topic. Vitolo extracted his data from the Spotify Web API and compared the “popularity” variable to “tempo” and “loudness” for songs from 2010 to 2021 (Vitolo). Vitolo also used a LightGBM to assess which song characteristic variables are more trivial in song popularity.  
+
+![](VitorloFig1.png)
+
+FIGURE 1 (Vitolo) 
+
+[V](path/to/image.png)itolo’s song characteristic rankings were quite simple and clear to understand at a glance. It clearly depicted loudness as the most important song characteristic while the least important was months since 2010. This was part of Vitolo’s prior research in his Master Thesis, he then went on to analyze each of these song characteristics and analyzed their role in determining popularity, however, his main analysis was focused on song loudness. Vitolo’s results indicated that songs recorded at a higher volume tended to trend more positively with popularity (Vitolo). He emphasized that louder songs truly grasped the listeners attention when their minds are occupied with other activities. This was done by using LightGBM to analyze the optimal combinations of these song characteristics to determine the most promising positive impact on the mood.  
+
+Another art and science faculty member of the University of Toronto wrote a research paper on this question. Kejun Li used these song characteristics with linear regression to compare popularity with year of release (Li 2024). She even went to present her research to the 2nd International Conference on Mathematical Physics and Computational Simulation (Li 2024). Li took a different approach to the research question and analyzed speechiness in instrumental music and its correlation with song popularity. She created various scatterplots using linear regression which show the relationship between these characteristics.
+
+![](Fig2Li.png){fig-align="center"}
+
+FIGURE 2 (Li) 
+
+While very difficult to understand at a glance, Li’s data explores the experimental and theoretical values for speechiness and other variables. Her results were transmitted into a linear prediction model which is now meant to be used for others who are looking to make more popular music. The Log (speechiness) coefficient is negative, indicating a strong inverse relationship with popularity (Li 2024). This means that potentially increasing a songs speechiness might hurt the overall popularity. The positive log duration coefficient builds upon popularity if songs are longer. She then goes on further to explain song key in minor (0) or major (1) in the “mode”. As mode is negative, Li explains how major key songs seem to be less popular than songs in the minor key (Li 2024). This ultimately reveals listeners' music tonality preferences (Li 2024). And since Li’s research included year of release, readers are able to see a positive year coefficient which leads readers to see that newer songs skew positively towards popularity in comparison to older ones.  
+
+Li’s findings explain how overemphasis on quantifiable traits such as speechiness, length, and mode affect music to listeners. She concludes that these characteristics may be preventing songs from conveying emotional tone, social meaning, and artistic originality to the listener (Li 2024).  
+
+**METHODOLOGY** 
+
+To investigate whether song danceability has an impact on a song’s overall popularity, we will use Li and Vitolo’s findings and methods to analyze our data. Our research data “Spotify Top Chart Songs 2022” contains various spotify characteristics for each of the six-hundred and forty-six songs such as energy, danceability, loudness, speechiness, key, mode, peak rank, and weeks on chart. Both Li and Vitolo created scatterplots and graphs with linear regression to determine popularity based on these characteristics. As such, we will build scatterplots and graphs to identify initial patterns in the data. And then we will move further to create prediction models using linear regression to see if there exists an optimal level of danceability which would optimize popularity. This will allow us to determine whether there truly is a correlation between danceability and popularity, and if musical artists created the optimal level of danceability in their music in the top songs on Spotify.  
+
+We will use the peak rank and weeks on chart statistics from the data to measure the song’s popularity. This will allow us to determine how the different scores of danceability affect how long and how popular a song is in the top charts of music in 2022. After finding the patterns. We will then advance to finding which danceability scores are the most optimal for determining song popularity. This will be done by testing popularity against danceability scores in intervals of 0.2 from 0-0.2, 0.2-0.4, 0.4-0.6, 0.6-0.8, and 0.8-1.0 (Figure 4a,b,c,d,e). This will allow us to see which interval contains the most positive relationship to popular music and also allow us to build a linear regression model to predict which songs will be popular in the long run. Although songs do contain other characteristics which make them popular, we will strictly test and analyze the results of danceability.  
+
+**DATA EXPLORATION** 
+
+We will start exploring our data by creating an overall visualization of song danceability vs. peak rank. We can explore the average of the peak ranks of each song based on danceability. Then we will also explore danceability vs. weeks on chart. Which will show us how popular a song is and for how long.  
+
+Looking at the raw data itself, we noticed a wide variety of songs with various genres and artists. Each song had very different characteristic levels/scores. We also saw various peak rank levels and weeks on chart levels. We did not notice any particular outliers in any variable at a glance. 
+
+To understand the factors that issue popularity, we perform the relationship between various audio features of songs and metrics describing the popularity, such as peak rank and weeks on chart through correlation matrix analysis. Features refer to the acoustic properties that describe a song by features, while popularity metrics denote the success of songs within a chart. The following are included: danceability, energy, loudness, speechiness, acousticness, instrumentalness, liveness, tempo, and duration. These two measures are peak rank, which is a measure of the best chart position-some songs do not enter the top 40, but may have reached the top 10-and weeks on chart, which reflects how long a song maintains its position on the charts. In particular, this analysis examined which audio features are most highly related to these popularity measures in order to provide insight into what musical characteristics make a song popular. 
+
+```{r}
+#Code for corr matrix
+```
+
+Figure 3
+
+The correlation matrix underlines some interesting phenomena in the comparison between the audio features and the popularity variables. In particular, the first interesting feature that comes to mind should consider danceability because this intuitively should catch those features of a song which makes it rhythmic and catching. Indeed its correlations both with peak rank and with weeks on chart are really poor, equal to -0.01 and -0.06, respectively. This would suggest that, while perhaps desirable in certain genres of music, danceability has little effect on a song's reaching a high chart position or sustaining popularity for any amount of time. Energy, characterized as the intensity and activity of a song, is little correlated with peak rank at 0.06 and a slightly negative correlation with weeks on chart at -0.07. Although energy is strongly correlated with loudness, at 0.69, suggesting that louder songs are often more energetic, its minimal correlation with the popularity metrics means that energy alone does not drive a song's success. 
+
+Loudness-a not less essential characteristic of audio-has an extremely low correlation with peak rank, as is 0.03 and, correspondingly very close to zero with weeks on chart, as is 0.05. This finding is perhaps therefore said to mean that louder-featured and impacting songs is truly a general feature and appeal of energetic tracks though apparently do not convert into rank levels and longevity on charts. Interestingly, acousticness indicates just the degree of Acousitic an Audio song tract is: here fairly small negative correlation is marked, peak rank/by -0.03 and very small values +ve correlation in case weeks over chart 0.8 ). This would indicate that acoustic tracks might have a slight tendency to stick in the charts longer but won't reach the top positions as much. Acousticness is also strongly negatively correlated with energy (-0.59) and loudness (-0.44), which further supports that acoustic songs are typically softer and not as powerful. 
+
+Another feature, speechiness, essentially a measure of the occurrence of spoken words in a song, also has a very low correlation with popularity. It has a near-zero correlation with peak rank at 0.01 and a weak negative correlation with weeks on chart at -0.11. This would then indicate that songs with higher speech-like content, such as rap or spoken-word elements, did not necessarily attain high popularity nor sustained chart presence. Also, the instrumentalness that is no vocals has very low coefficients in both peak rank at 0.07 and weeks on chart at -0.04, which essentially means completely instrumental tracks have little association with chart performance. 
+
+Moving to liveness, defined as a measure of how "live" a song sounds, its correlations with peak rank (0.00) and weeks on chart (-0.06) are essentially insignificant. This suggests that the presence of live elements in a recording has no bearing on either a song's popularity or longevity. The same is true for tempo, a measure of the speed of a song, where correlations with peak rank were very weak at -0.02 and weeks on chart at -0.06. This would suggest that fast or slow songs have no consistent relationship to chart performance. Duration_ms: This refers to the length of a song in milliseconds. It shows a slight negative correlation with peak rank at -0.10 and a weak positive correlation with weeks on chart at 0.09. This would perhaps indicate that the marginally longer songs have a tendency to remain in the charts for a longer time, but once again, the relationship is too weak to arrive at any concrete conclusion. 
+
+In other words, the analysis of a correlation matrix shows that there is no single strong determinant in popularity, defined as peak rank and weeks on chart. Although energy, loudness, and danceability features define the acoustic characteristics of a song, their relation to the popularity metric has been pretty weak. The strongest correlation, around -0.35, is between peak rank and weeks on chart, emphasizing that the higher a song climbs in position on the chart, the longer it can stay on the chart. Features associated with acousticness, speechiness, and instrumentalness are not very strongly related to the popularity of a song; therefore, chart success is most likely going to be affected by more than one factor instead of the presence of some single characteristic in the song. This, therefore, points out the complexity in what really defines the popularity of a song and recommends future studies using predictive modeling or genre-specific analyses in depth about the interaction of audio features and popularity. 
+
+We will now do more analysis on how the danceability feature changes based on two key groupings of interest: peak rank and weeks on chart. Danceability: The higher the value, the more suitable a track is for dancing according to the tempo, beat regularity, and rhythm stability of the track. Since this is already a dataset with chart-topping songs, this seeks to establish a relative pattern in danceability. We then investigate concretely whether highly ranked songs (e.g., Top 10) and songs that were long on the chart (e.g., more than 50 weeks) are more or less danceable compared to the others. The current analysis can thus enlighten us whether danceability plays a factor in the rise of a song to very top positions or for the maintenance of popularity over a longer period. 
+
+First, the songs were divided into groups such as Top 10, Top 50, and Top 200 for the purposes of the rank group analysis. The above categorization gives the exact variances of danceability associated with different extents of relative successes. Also, in performing the weeks on chart analysis, the songs have been classified according to the duration the songs remain on the charts. These include Short Duration (≤10 weeks), Medium Duration (11–50 weeks), and Long Duration (\>50 weeks). This can be done by comparing the danceability across these groups to understand how rhythmic and groove-oriented qualities relate to peak chart position and sustained longevity. 
+
+```{r}
+#code for box plots
+```
+
+**Danceability vs Rank Group**  
+
+The danceability in the rank groups seems to come with a slight trend, at best, and the sizes of the differences are definitely not great or likely to be significant. The mean danceability is highest for songs within the Top 10 rank: 0.691, while the Top 50 group follows, little behind, at an average of 0.677, and the Top 200 group at an average of 0.667. These results may suggest that songs which achieve the highest chart positions tend to have somewhat higher danceability, but the small magnitude of these differences, combined with overlapping variability-that is to say, standard deviations of \~ 0.13 - 0.16-suggests that danceability is not solely a major determinant of a song's peak rank. This suggests that danceable tracks are at an advantage in reaching higher chart positions, although this effect is marginal and not statistically significant.  
+
+**Danceability vs Weeks on Chart**  
+
+Similarly, analyzing the danceability by weeks on chart shows little variation. For instance, for Short Duration (≤10 weeks), the average danceability is 0.675, while for Medium Duration, the danceability increases to 0.684. Long Duration (\>50 weeks) songs have a slight decrease in their danceability to 0.640.  
+
+This could indicate a slight tendency toward songs with higher danceability, as this could explain why these songs might have performed well in the short run; however, the differences are very small and not significant. The small standard deviation in danceability, at an approximate range of \~0.14-0.15, points more so to danceability being far from a major driving variable behind chart performance in the long term.
+
+### Danceability in Top 200 Song vs Average Song 
+
+```{r}
+#code for distribution of danceability
+```
+
+\[INSERT FIGURE 4a,b,c,d,e (interval for danceability)\] 
+
+\[INSERT DATA ANALYSIS ON FIGURE 4a,b,c,d,e\] 
+
+\[INSERT SUMMARY TABLE FOR DATA\] 
+
+\[EXPLAIN STATISTICS IN SUMMARY TABLE (should be about a page long)\] 
+
+**RESULTS** 
+
+WORKS CITED: 
+
+Li, Kejun. “Predicting Song Popularity in the Digital Age through Spotify’s  Data.” Faculty member of Art and Science, University of Toronto, Canada. 
+
+Scarrott, Becky. “The Best Music Streaming Services 2024: Spotify, Apple Music, Tidal, Qobuz, More.” TechRadar, TechRadar, 17 July 2023, [www.techradar.com/audio/audio-streaming/the-best-music-streaming-services](https://www.techradar.com/audio/audio-streaming/the-best-music-streaming-services).  
+
+Trick, Spoti. “The Evolution of Spotify: Key Milestones from Launch to Today.” Medium, Medium, 16 Jan. 2024, medium.com/\@spotitrick/the-evolution-of-spotify-key-milestones-from-launch-to-today-64e7f1f07c77.  
+
+Vitolo, Francesco. “What Makes a Song Popular? Analysis on Spotify Data.” Erasmus Universiteit of Rotterdam, 2023. 
