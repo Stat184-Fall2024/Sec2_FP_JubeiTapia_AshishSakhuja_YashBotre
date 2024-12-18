@@ -20,7 +20,7 @@ Music is a source of entertainment for a slew of different people worldwide. Reg
 
 In the present report, I’ll analyze what song characteristics truly make songs popular and report on the research question: Does song danceability make a song more popular? I'll start by addressing some background information regarding Spotify and song popularity, then I’ll deep dive into the analysis of these song characteristics and their correlation to current popularity.  
 
-```{r}
+```{r some-label, echo=FALSE, include=TRUE}
 #| label: load-pkgs
 #| message: false
 #| code-summary: "Packages"
@@ -69,7 +69,7 @@ Looking at the raw data itself, we noticed a wide variety of songs with various 
 
 To understand the factors that issue popularity, we perform the relationship between various audio features of songs and metrics describing the popularity, such as peak rank and weeks on chart through correlation matrix analysis. Features refer to the acoustic properties that describe a song by features, while popularity metrics denote the success of songs within a chart. The following are included: danceability, energy, loudness, speechiness, acousticness, instrumentalness, liveness, tempo, and duration. These two measures are peak rank, which is a measure of the best chart position-some songs do not enter the top 40, but may have reached the top 10-and weeks on chart, which reflects how long a song maintains its position on the charts. In particular, this analysis examined which audio features are most highly related to these popularity measures in order to provide insight into what musical characteristics make a song popular. 
 
-```{r}
+```{r some-label, echo=FALSE, include=TRUE}
 #Code for corr matrix
 ```
 
@@ -89,7 +89,7 @@ We will now do more analysis on how the danceability feature changes based on tw
 
 First, the songs were divided into groups such as Top 10, Top 50, and Top 200 for the purposes of the rank group analysis. The above categorization gives the exact variances of danceability associated with different extents of relative successes. Also, in performing the weeks on chart analysis, the songs have been classified according to the duration the songs remain on the charts. These include Short Duration (≤10 weeks), Medium Duration (11–50 weeks), and Long Duration (\>50 weeks). This can be done by comparing the danceability across these groups to understand how rhythmic and groove-oriented qualities relate to peak chart position and sustained longevity. 
 
-```{r}
+```{r some-label, echo=FALSE, include=TRUE}
 #code for box plots
 ```
 
