@@ -85,6 +85,8 @@ Moving to liveness, defined as a measure of how "live" a song sounds, its correl
 
 In other words, the analysis of a correlation matrix shows that there is no single strong determinant in popularity, defined as peak rank and weeks on chart. Although energy, loudness, and danceability features define the acoustic characteristics of a song, their relation to the popularity metric has been pretty weak. The strongest correlation, around -0.35, is between peak rank and weeks on chart, emphasizing that the higher a song climbs in position on the chart, the longer it can stay on the chart. Features associated with acousticness, speechiness, and instrumentalness are not very strongly related to the popularity of a song; therefore, chart success is most likely going to be affected by more than one factor instead of the presence of some single characteristic in the song. This, therefore, points out the complexity in what really defines the popularity of a song and recommends future studies using predictive modeling or genre-specific analyses in depth about the interaction of audio features and popularity. 
 
+**Analysis By Groups**
+
 We will now do more analysis on how the danceability feature changes based on two key groupings of interest: peak rank and weeks on chart. Danceability: The higher the value, the more suitable a track is for dancing according to the tempo, beat regularity, and rhythm stability of the track. Since this is already a dataset with chart-topping songs, this seeks to establish a relative pattern in danceability. We then investigate concretely whether highly ranked songs (e.g., Top 10) and songs that were long on the chart (e.g., more than 50 weeks) are more or less danceable compared to the others. The current analysis can thus enlighten us whether danceability plays a factor in the rise of a song to very top positions or for the maintenance of popularity over a longer period. 
 
 First, the songs were divided into groups such as Top 10, Top 50, and Top 200 for the purposes of the rank group analysis. The above categorization gives the exact variances of danceability associated with different extents of relative successes. Also, in performing the weeks on chart analysis, the songs have been classified according to the duration the songs remain on the charts. These include Short Duration (≤10 weeks), Medium Duration (11–50 weeks), and Long Duration (\>50 weeks). This can be done by comparing the danceability across these groups to understand how rhythmic and groove-oriented qualities relate to peak chart position and sustained longevity. 
@@ -105,20 +107,39 @@ This could indicate a slight tendency toward songs with higher danceability, as 
 
 ### Danceability in Top 200 Song vs Average Song 
 
-```{r}
-#code for distribution of danceability
-```
+A one-sample t-test was conducted to determine if the danceability for the 646 songs in our dataset is significantly higher than that of the population. A study analyzing >170,000 Spotify songs with a focus on the danceability index was used for the population sample in this case (Khurjekar 2021). For the population, the mean danceability is 0.5368 with a standard deviation of 0.1760 while the sample of the top-charting songs has a mean danceability of 0.6744 and a standard deviation of 0.1515 (see figure 6). We state our null hypothesis as H0, which assumes that the mean danceability for this dataset is less than or equal to the population mean (μ ≤ 0.5368), and the alternative hypothesis H1 states that the mean danceability of the dataset is significantly higher (μ > 0.5368). At a sample size of 646 songs and using an α = 0.05, the t-test evaluates if this difference in mean values between that of the dataset and the true population is statistically significant. 
 
-\[INSERT FIGURE 4a,b,c,d,e (interval for danceability)\] 
+```{r some-label, echo=FALSE, include=TRUE}
+#distribution of danceability
+```
+Figure 6
+This test will be performed by the computation of the t-statistic, which is the measure of the difference between a sample mean and population mean in relationship to the standard error of the sample. 
+
+Then a corresponding p-value will be computed using the t-distribution, giving the probability of obtaining such an extreme sample mean when the null hypothesis is true. We will reject the null hypothesis if we get a p-value of less than 0.05, thereby concluding that the mean of the dataset for danceability is much greater than that of the population. 
+
+This t-test will enable us to investigate whether the higher mean danceability that we observe in our data is likely to be just a chance occurrence, or whether it reflects an authentic property of top-charting songs. The t-statistic is a measure of how many standard errors away from the population mean our sample mean is. If this distance is great-that is, if the t-statistic is large-it indicates that our sample mean is unlikely to have happened under the null hypothesis. This would mean that the result would make much more sense from a probability viewpoint. In most instances, a small p-value means that this sample mean is not probable given the null hypothesis and hence we can only make one conclusion: that danceability in this dataset is higher than the population average. 
+
+
 
 \[INSERT DATA ANALYSIS ON FIGURE 4a,b,c,d,e\] 
+```{r some-label, echo=FALSE, include=TRUE}
+#Summary Table
+```
+Figure 7
+From the one-sample t-test, we get a test statistic t ≈ 22.46 (see figure 7), as well as a very accurate p-value of approximately 0.000 computed under the t-distribution with df = 645, degrees of freedom. Based on that value being far smaller than α = 0.05, we are confident in rejecting our null hypothesis, H0. That is to say, the mean danceability of the 646 songs in our dataset is well above that of the population. These findings support the notion that top-charting songs tend to be more danceable than the greater population of songs, going to reinforce the idea that rhythmic and groove-oriented tracks are a defining characteristic of popular music. 
 
-\[INSERT SUMMARY TABLE FOR DATA\] 
 
-\[EXPLAIN STATISTICS IN SUMMARY TABLE (should be about a page long)\] 
+Figure 8a
+Figure 8b
 
-**RESULTS** 
+This analysis defines how much danceability can illustrate the success of a song in a chart. The mean value for danceability in 646 top songs is remarkably greater compared to the overall population, which suggests that the greater the danceability of a song, the more popular the song will be. Although this is statistically significant, it does not imply that other factors such as energy, tempo, and lyrical content do not make a song popular; therefore, these factors should also be explored in future analyses. 
 
+**CONCLUSION**
+
+This analysis shows that there is a significantly higher danceability within top-charting songs than in the general population. The one-sample t-test showed that the average of the top 646 Spotify songs, 0.6744, was far above the average in the population, 0.5368, since its t-statistic is 22.46 and the p-value is close to 0.000. However, this is weakened by the low and insignificant correlations between danceability and popularity metrics in the Top 200 songs, as represented by peak rank-0.01 and week on chart-0.06, suggesting that the danceability metric is higher in Top songs, but does not determine much about the popularity of the songs within those that are already among the most popular. It may fuel the success of the song, but other factors such as energy, loudness, and lyrical content should be considered as playing significant roles in long-term chart performance. On the whole, danceability is an important feature of popular music, but perhaps not the sole determinant of success. 
+
+ 
+{{< pagebreak >}}
 WORKS CITED: 
 
 Li, Kejun. “Predicting Song Popularity in the Digital Age through Spotify’s  Data.” Faculty member of Art and Science, University of Toronto, Canada. 
