@@ -27,8 +27,13 @@ In the present report, I’ll analyze what song characteristics truly make songs
 
 library(openintro)  # for data
 library(tidyverse)  # for data wrangling and visualization
-library(knitr)      # for tables
-library(broom)      # for model summary
+library(knitr)      # for formatted tables
+library(kableExtra) # for enhanced table styling
+library(ggplot2)    # for plots
+library(ggcorrplot) #for correlation heatmap
+
+#Load Data
+spotify_data <- read_csv("spotify_top_charts_22.csv")
 ```
 
 ## Background Information {#sec-eda}
@@ -70,7 +75,31 @@ Looking at the raw data itself, we noticed a wide variety of songs with various 
 To understand the factors that issue popularity, we perform the relationship between various audio features of songs and metrics describing the popularity, such as peak rank and weeks on chart through correlation matrix analysis. Features refer to the acoustic properties that describe a song by features, while popularity metrics denote the success of songs within a chart. The following are included: danceability, energy, loudness, speechiness, acousticness, instrumentalness, liveness, tempo, and duration. These two measures are peak rank, which is a measure of the best chart position-some songs do not enter the top 40, but may have reached the top 10-and weeks on chart, which reflects how long a song maintains its position on the charts. In particular, this analysis examined which audio features are most highly related to these popularity measures in order to provide insight into what musical characteristics make a song popular. 
 
 ```{r some-label, echo=FALSE, include=TRUE}
-#Code for corr matrix
+#Relevant columns
+popularity_features <- c("peak_rank", "weeks_on_chart", "danceability",                           "energy", "loudness", "speechiness", "acousticness",                         "instrumentalness","liveness", "tempo",           
+                         "duration_ms"
+                          )
+spotify_numeric <- spotify_data[, popularity_features]
+# Calculate matrix
+
+cor_matrix <- cor(spotify_numeric, use = "complete.obs") 
+
+# Print matrix
+
+print(cor_matrix)
+
+# Visualize matrix 
+
+ggcorrplot(cor_matrix, 
+
+           lab = TRUE,        # Add correlation values
+
+           colors = c("red", "white", "blue"), # Color scale
+
+           title = "Correlation Matrix of Spotify Features",
+
+           legend.title = "Correlation")
+
 ```
 
 Figure 3
@@ -92,12 +121,66 @@ We will now do more analysis on how the danceability feature changes based on tw
 First, the songs were divided into groups such as Top 10, Top 50, and Top 200 for the purposes of the rank group analysis. The above categorization gives the exact variances of danceability associated with different extents of relative successes. Also, in performing the weeks on chart analysis, the songs have been classified according to the duration the songs remain on the charts. These include Short Duration (≤10 weeks), Medium Duration (11–50 weeks), and Long Duration (\>50 weeks). This can be done by comparing the danceability across these groups to understand how rhythmic and groove-oriented qualities relate to peak chart position and sustained longevity. 
 
 ```{r some-label, echo=FALSE, include=TRUE}
-#code for box plots
+# Group songs by Peak Rank: Top 10, Top 50, and Beyond
+spotify_data <- spotify_data %>%
+  mutate(rank_group = case_when(
+    peak_rank <= 10 ~ "Top 10",
+    peak_rank <= 50 ~ "Top 50",
+    TRUE ~ "Top 200"
+  ))
+
+# Boxplot of Danceability vs Rank Group
+ggplot(spotify_data, aes(x = rank_group, y = danceability, fill = rank_group)) +
+  geom_boxplot() +
+  labs(title = "Danceability by Peak Rank Group",
+       x = "Peak Rank Group",
+       y = "Danceability") +
+  theme_minimal()
+# Group songs by Weeks on Chart: Short, Medium, and Long Duration
+spotify_data <- spotify_data %>%
+  mutate(weeks_group = case_when(
+    weeks_on_chart <= 10 ~ "Short Duration",
+    weeks_on_chart <= 50 ~ "Medium Duration",
+    TRUE ~ "Long Duration"
+  ))
+
+# Boxplot of Danceability vs Weeks on Chart Group
+
+ggplot(spotify_data, aes(x = weeks_group, y = danceability, fill = weeks_group)) +
+  geom_boxplot() +
+  labs(title = "Danceability by Weeks on Chart Group",
+       x = "Weeks on Chart Group",
+       y = "Danceability") +
+  theme_minimal()
+
+# Danceability across Groups
+danceability_by_rank <- spotify_data %>%
+  group_by(rank_group) %>%
+  summarise(mean_danceability = mean(danceability),
+            sd_danceability = sd(danceability)) 
+danceability_by_weeks <- spotify_data %>%
+  group_by(weeks_group) %>%
+  summarise(mean_danceability = mean(danceability),
+            sd_danceability = sd(danceability)) 
+
+# Format tables
+cat("\n### Danceability by Peak Rank Group:\n")
+kable(danceability_by_rank, 
+      caption = "Mean and Standard Deviation of Danceability by Peak Rank Group",
+      col.names = c("Rank Group", "Mean Danceability", "SD of Danceability"),
+      align = "c") %>%
+  kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover"))
+cat("\n### Danceability by Weeks on Chart Group:\n")
+kable(danceability_by_weeks, 
+      caption = "Mean and Standard Deviation of Danceability by Weeks on Chart Group",
+      col.names = c("Weeks Group", "Mean Danceability", "SD of Danceability"),
+      align = "c") %>%
+  kable_styling(full_width = FALSE, position = "center", bootstrap_options = c("striped", "hover"))
 ```
 
 **Danceability vs Rank Group**  
 
-The danceability in the rank groups seems to come with a slight trend, at best, and the sizes of the differences are definitely not great or likely to be significant. The mean danceability is highest for songs within the Top 10 rank: 0.691, while the Top 50 group follows, little behind, at an average of 0.677, and the Top 200 group at an average of 0.667. These results may suggest that songs which achieve the highest chart positions tend to have somewhat higher danceability, but the small magnitude of these differences, combined with overlapping variability-that is to say, standard deviations of \~ 0.13 - 0.16-suggests that danceability is not solely a major determinant of a song's peak rank. This suggests that danceable tracks are at an advantage in reaching higher chart positions, although this effect is marginal and not statistically significant.  
+The danceability in the rank groups seems to come with a slight trend, at best, and the sizes of the differences are definitely not great or likely to be significant. The mean danceability is highest for songs within the Top 10 rank: 0.691, while the Top 50 group follows, little behind, at an average of 0.677, and the Top 200 group at an average of 0.667. These results may suggest that songs that achieve the highest chart positions tend to have somewhat higher danceability, but the small magnitude of these differences, combined with overlapping variability-that is to say, standard deviations of \~ 0.13 - 0.16-suggests that danceability is not solely a major determinant of a song's peak rank. This suggests that danceable tracks are at an advantage in reaching higher chart positions, although this effect is marginal and not statistically significant.  
 
 **Danceability vs Weeks on Chart**  
 
@@ -111,6 +194,37 @@ A one-sample t-test was conducted to determine if the danceability for the 646 s
 
 ```{r some-label, echo=FALSE, include=TRUE}
 #distribution of danceability
+# Calculate statistics for the dataset's danceability 
+
+data_stats <- spotify_data %>% 
+  summarise( 
+    Mean_Danceability = mean(danceability, na.rm = TRUE), 
+    Median_Danceability = median(danceability, na.rm = TRUE), 
+    Std_Dev_Danceability = sd(danceability, na.rm = TRUE) 
+  ) %>% 
+  mutate(Group = "Top 200 Songs") 
+
+# Add population statistics 
+population_stats <- data.frame( 
+  Group = "Population (Baseline)", 
+  Mean_Danceability = 0.5368, 
+  Median_Danceability = 0.5840, 
+  Std_Dev_Danceability = 0.1760 
+) 
+
+# Combine both statistics into one table 
+stats_table <- bind_rows(data_stats, population_stats) %>% 
+  select(Group, Mean_Danceability, Median_Danceability, Std_Dev_Danceability) # Ensure correct column order 
+
+# Print table 
+
+stats_table %>% 
+  kable( 
+    caption = "Danceability Statistics: Top 200 Songs vs. Population", 
+    col.names = c("Group", "Mean Danceability", "Median Danceability", "Standard Deviation"), 
+    align = "c" 
+  ) %>% 
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover")) 
 ```
 Figure 6
 This test will be performed by the computation of the t-statistic, which is the measure of the difference between a sample mean and population mean in relationship to the standard error of the sample. 
@@ -121,16 +235,69 @@ This t-test will enable us to investigate whether the higher mean danceability t
 
 
 
-\[INSERT DATA ANALYSIS ON FIGURE 4a,b,c,d,e\] 
 ```{r some-label, echo=FALSE, include=TRUE}
-#Summary Table
+# Given input values 
+sample_mean <- 0.6744       # Mean of the dataset 
+sample_sd <- 0.1515         # Standard deviation of the dataset 
+n <- 646                    # Sample size (number of songs) 
+population_mean <- 0.5368   # Population mean 
+
+# Calculate t-statistic 
+t_stat <- (sample_mean - population_mean) / (sample_sd / sqrt(n)) 
+
+# degrees of freedom 
+df <- n - 1 
+
+# Calculate p-value for one-tailed test 
+p_value <- pt(t_stat, df, lower.tail = FALSE) 
+
+# Create data frame 
+results_table <- data.frame( 
+  Statistic = c("T-Statistic", "Degrees of Freedom", "P-Value"), 
+  Value = c(round(t_stat, 4), df, format(p_value, scientific = TRUE)) 
+) 
+# Print table 
+results_table %>% 
+  kable( 
+    caption = "One-Sample T-Test Results: Danceability of Top 646 Songs vs Population", 
+    col.names = c("Statistic", "Value"), 
+    align = "c" 
+  ) %>% 
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover")) 
 ```
 Figure 7
 From the one-sample t-test, we get a test statistic t ≈ 22.46 (see figure 7), as well as a very accurate p-value of approximately 0.000 computed under the t-distribution with df = 645, degrees of freedom. Based on that value being far smaller than α = 0.05, we are confident in rejecting our null hypothesis, H0. That is to say, the mean danceability of the 646 songs in our dataset is well above that of the population. These findings support the notion that top-charting songs tend to be more danceable than the greater population of songs, going to reinforce the idea that rhythmic and groove-oriented tracks are a defining characteristic of popular music. 
 
+```{r some-label, echo=FALSE, include=TRUE}
+# Get danceability 
+ggplot(spotify_data, aes(x = danceability)) + 
+  # Histogram 
+  geom_histogram(aes(y = ..density..), binwidth = 0.05,  
+                 fill = "blue", color = "black", alpha = 0.6) + 
 
-Figure 8a
-Figure 8b
+  # Density curve 
+  geom_density(color = "blue", size = 1) + 
+
+  # Mean line 
+  geom_vline(aes(xintercept = mean(danceability)),  
+             color = "red", linetype = "dashed", size = 1) + 
+  # Median line 
+  geom_vline(aes(xintercept = median(danceability)),  
+             color = "green", linetype = "dashed", size = 1) + 
+  # Labels and title 
+  labs(title = "Distribution of Danceability", 
+       x = "Danceability", 
+       y = "Density") + 
+  theme_minimal() + 
+  # Customize x-axis labels 
+  scale_x_continuous(breaks = seq(0, 1, by = 0.1)) + 
+  # Legend for lines 
+  annotate("text", x = mean(spotify_data$danceability) + 0.05, y = 2.5,  
+           label = "Mean", color = "red", size = 4, fontface = "bold") + 
+  annotate("text", x = median(spotify_data$danceability) + 0.05, y = 2.3,  
+           label = "Median", color = "green", size = 4, fontface = "bold") 
+```
+Figure 8a     Figure 8b
 
 This analysis defines how much danceability can illustrate the success of a song in a chart. The mean value for danceability in 646 top songs is remarkably greater compared to the overall population, which suggests that the greater the danceability of a song, the more popular the song will be. Although this is statistically significant, it does not imply that other factors such as energy, tempo, and lyrical content do not make a song popular; therefore, these factors should also be explored in future analyses. 
 
